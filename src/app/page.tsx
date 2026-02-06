@@ -190,6 +190,34 @@ type Fragment = {
                     [ OPEN CONTACT CHANNEL ]
                   </button>
                   <a
+                    href={`mailto:farid.kanaani.official@gmail.com?subject=${encodeURIComponent(
+                      "[HIRE] Zero Point Inquiry"
+                    )}&body=${encodeURIComponent(
+                      "Hi Farid,\n\nI found Zero Point (faridkanaani.vercel.app) and I want to talk about: \n- project scope:\n- budget:\n- timeline:\n\nMy contact:"
+                    )}`}
+                    className="text-left border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold"
+                  >
+                    [ HIRE ME ]
+                  </a>
+                  <a
+                    href="https://ko-fi.com/faridkanaani"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-left border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold"
+                  >
+                    [ SUPPORT THE VOID ]
+                  </a>
+                  <a
+                    href={`mailto:farid.kanaani.official@gmail.com?subject=${encodeURIComponent(
+                      "[SIGNAL] Join The Signal"
+                    )}&body=${encodeURIComponent(
+                      "Add me to the signal list.\n\nName:\nEmail:\nReason:" 
+                    )}`}
+                    className="text-left border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold"
+                  >
+                    [ JOIN THE SIGNAL ]
+                  </a>
+                  <a
                     href="https://github.com/faridkanaani"
                     target="_blank"
                     rel="noreferrer"
