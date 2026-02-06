@@ -47,6 +47,8 @@ https://faridkanaani.vercel.app/
 ## License
 Feel free to fork, copy, and remix. This is open source for inspiration.
 
+**Brand image copyright © Farid Kanaani. Do not use without permission.**
+
 ## Author
 Farid Kanaani - Code Artist
 - Email: farid.kanaani.official@gmail.com
