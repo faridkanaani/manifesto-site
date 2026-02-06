@@ -5,6 +5,13 @@ import { useEffect, useState } from "react";
 import { ArrowUpLeft, Zap, Eye, Code2 } from "lucide-react";
 import Image from "next/image";
 
+const terminalMessages = [
+  "INITIALIZING BREACH... \nACCESSING CORE MANIFESTO... \nWARNING: SYSTEM ANOMALY DETECTED. \nFARID KANAANI: STATUS=CODE_ARTIST \nREALITY=GLITCHED \nVOID=WATCHING...",
+  "BOOTING NEURAL INTERFACE... \nSCANNING VOID PROTOCOLS... \nERROR: DIMENSION SHIFT DETECTED. \nFARID_KANAANI: ACCESS_LEVEL=MAX \nMATRIX=UNSTABLE \nREALITY=HACKED...",
+  "CONNECTING TO THE VOID... \nAUTHENTICATING USER: FARID \nWARNING: EXISTENTIAL THREAT LEVEL HIGH. \nSTATUS: CODE_ARTIST ACTIVATED \nREALITY: BREACHED \nVOID: RESPONDING...",
+  "LOADING DIGITAL MANIFESTO... \nDECRYPTING CORE VALUES... \nALERT: CONSCIOUSNESS EXPANSION. \nFARID KANAANI: IDENTITY=GLITCH \nMATRIX=GLITCHED \nVOID=WATCHING...",
+];
+
 type Fragment = {
   id: number;
   a: string;
@@ -15,24 +22,16 @@ type Fragment = {
   duration: number;
 };
 
-export default function Home() {
+ export default function Home() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [terminalText, setTerminalText] = useState("");
   const [isMounted, setIsMounted] = useState(false);
-  const [trailChar, setTrailChar] = useState("00");
   const [fragments, setFragments] = useState<Fragment[]>([]);
   const [breachOpen, setBreachOpen] = useState(false);
   const [breachMode, setBreachMode] = useState<"data" | "void">("data");
   const [crashMode, setCrashMode] = useState(false);
   const [scrollOffset, setScrollOffset] = useState(0);
-
-  const terminalMessages = [
-    "INITIALIZING BREACH... \nACCESSING CORE MANIFESTO... \nWARNING: SYSTEM ANOMALY DETECTED. \nFARID KANAANI: STATUS=CODE_ARTIST \nREALITY=GLITCHED \nVOID=WATCHING...",
-    "BOOTING NEURAL INTERFACE... \nSCANNING VOID PROTOCOLS... \nERROR: DIMENSION SHIFT DETECTED. \nFARID_KANAANI: ACCESS_LEVEL=MAX \nMATRIX=UNSTABLE \nREALITY=HACKED...",
-    "CONNECTING TO THE VOID... \nAUTHENTICATING USER: FARID \nWARNING: EXISTENTIAL THREAT LEVEL HIGH. \nSTATUS: CODE_ARTIST ACTIVATED \nREALITY: BREACHED \nVOID: RESPONDING...",
-    "LOADING DIGITAL MANIFESTO... \nDECRYPTING CORE VALUES... \nALERT: CONSCIOUSNESS EXPANSION. \nFARID KANAANI: IDENTITY=GLITCH \nMATRIX=GLITCHED \nVOID=WATCHING..."
-  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -56,13 +55,10 @@ export default function Home() {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [crashMode]);
 
   useEffect(() => {
     if (!isMounted) return;
-
-    const mkHex2 = () => Math.floor(Math.random() * 256).toString(16).padStart(2, "0");
-    setTrailChar(mkHex2());
 
     const mkFrag = (id: number): Fragment => {
       const msg = Math.random() > 0.5 ? `0x${Math.random().toString(16).slice(2, 8)}` : "ERROR_NOT_FOUND";
