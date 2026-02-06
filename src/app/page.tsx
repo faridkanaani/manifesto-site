@@ -174,7 +174,7 @@ export default function Home() {
                 <div className="mt-3 font-mono text-sm text-green-400 whitespace-pre-wrap leading-relaxed">
                   {breachMode === "data"
                     ? "> whoami\nfarid_kanaani\n\n> ls projects\n- zero_point_manifesto\n- nextmvp\n- experiments\n\n> hint\nClick the VOID to reveal contact"
-                    : "> ping void\nvoid: alive\n\n> open channel\nchannel: unstable\n\n> contact\nemail: farid.kanaani.official@gmail.com\n\ngithub: github.com/faridkanaani"}
+                    : "> ping void\nvoid: alive\n\n> open channel\nchannel: unstable\n\n> contact\nemail: farid.kanaani.official@gmail.com\ngithub: github.com/faridkanaani\nyoutube: youtube.com/@faridkanaani\ninstagram: instagram.com/faridkanaani\ntelegram: t.me/farid_kanaani"}
                 </div>
               </div>
 
