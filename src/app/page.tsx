@@ -24,6 +24,15 @@ export default function Home() {
   const [fragments, setFragments] = useState<Fragment[]>([]);
   const [breachOpen, setBreachOpen] = useState(false);
   const [breachMode, setBreachMode] = useState<"data" | "void">("data");
+  const [crashMode, setCrashMode] = useState(false);
+  const [scrollOffset, setScrollOffset] = useState(0);
+
+  const terminalMessages = [
+    "INITIALIZING BREACH... \nACCESSING CORE MANIFESTO... \nWARNING: SYSTEM ANOMALY DETECTED. \nFARID KANAANI: STATUS=CODE_ARTIST \nREALITY=GLITCHED \nVOID=WATCHING...",
+    "BOOTING NEURAL INTERFACE... \nSCANNING VOID PROTOCOLS... \nERROR: DIMENSION SHIFT DETECTED. \nFARID_KANAANI: ACCESS_LEVEL=MAX \nMATRIX=UNSTABLE \nREALITY=HACKED...",
+    "CONNECTING TO THE VOID... \nAUTHENTICATING USER: FARID \nWARNING: EXISTENTIAL THREAT LEVEL HIGH. \nSTATUS: CODE_ARTIST ACTIVATED \nREALITY: BREACHED \nVOID: RESPONDING...",
+    "LOADING DIGITAL MANIFESTO... \nDECRYPTING CORE VALUES... \nALERT: CONSCIOUSNESS EXPANSION. \nFARID KANAANI: IDENTITY=GLITCH \nMATRIX=GLITCHED \nVOID=WATCHING..."
+  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -34,6 +43,10 @@ export default function Home() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "t") {
         setTerminalOpen((prev) => !prev);
+      }
+      if (e.key.toLowerCase() === "r" && !crashMode) {
+        setCrashMode(true);
+        setTimeout(() => setCrashMode(false), 3000); // 3 seconds crash
       }
     };
 
@@ -82,16 +95,25 @@ export default function Home() {
 
   useEffect(() => {
     if (terminalOpen) {
-      const fullText = "INITIALIZING BREACH... \nACCESSING CORE MANIFESTO... \nWARNING: SYSTEM ANOMALY DETECTED. \nFARID KANAANI: STATUS=CODE_ARTIST \nREALITY=GLITCHED \nVOID=WATCHING...";
+      const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessages.length)];
       let i = 0;
       const interval = setInterval(() => {
-        setTerminalText(fullText.slice(0, i));
+        setTerminalText(randomMessage.slice(0, i));
         i++;
-        if (i > fullText.length) clearInterval(interval);
+        if (i > randomMessage.length) clearInterval(interval);
       }, 50);
       return () => clearInterval(interval);
     }
   }, [terminalOpen]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    const handleScroll = () => {
+      setScrollOffset(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isMounted]);
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center p-8 overflow-hidden cursor-none">
@@ -186,16 +208,6 @@ export default function Home() {
         </motion.div>
       )}
 
-      {/* Mouse Trail Character */}
-      {isMounted && (
-        <motion.div
-          animate={{ x: mousePos.x + 20, y: mousePos.y + 20 }}
-          className="fixed pointer-events-none z-[60] text-white/50 font-mono text-xs mix-blend-difference"
-        >
-          {trailChar}
-        </motion.div>
-      )}
-
       {/* Background Effect */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-20"
@@ -207,7 +219,7 @@ export default function Home() {
       {/* Floating Elements */}
       <motion.div 
         initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: 1, y: scrollOffset * 0.05 }}
         transition={{ duration: 1, ease: "circOut" }}
         className="z-10 text-center flex flex-col items-center"
       >
@@ -342,7 +354,8 @@ export default function Home() {
           x: mousePos.x / 10,
           y: mousePos.y / 10
         }}
-        className="absolute top-20 right-20 text-white/10 select-none pointer-events-none"
+        className="absolute top-20 right-20 text-white/10 select-none"
+        onClick={() => alert("THE VOID SEES YOU. REALITY IS GLITCHING.")}
       >
         <Eye size={300} strokeWidth={0.5} />
       </motion.div>
