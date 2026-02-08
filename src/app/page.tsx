@@ -25,7 +25,7 @@ type Fragment = {
 type QrMatrix = boolean[][];
 
 const TON_USDT_TON_ADDRESS = "UQBjfe2bFUbV6vxH-Jxs6SnvyfgFR67q9zQQQ25VuTDrSE4g";
-const TELEGRAM_DEMO_URL = "https://t.me/Arian_Demo_Bot";
+const TELEGRAM_DEMO_URL = "https://t.me/faridkanaani_bot";
 
 function createQrSvg(matrix: QrMatrix, size: number) {
   const cells = matrix.length;
