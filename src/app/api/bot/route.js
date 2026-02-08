@@ -44,16 +44,16 @@ bot.callbackQuery(/^pkg_/, async (ctx) => {
         `This flow simulates a direct USDT-on-TON payment.\n\n` +
         `💰 *Amount:* ${price} USDT\n` +
         `📥 *Address:* \`${WALLET_ADDRESS}\`\n\n` +
-        "Steps in real automation:\n" +
-        "1️⃣ User sends transaction\n" +
-        "2️⃣ Bot detects TX on-chain via TON API\n" +
-        "3️⃣ Bot verifies amount & comment\n" +
-        "4️⃣ Bot unlocks service/notifies group",
+        "*How the automation works:*\n" +
+        "1️⃣ *Detection:* My system monitors the TON blockchain in real-time.\n" +
+        "2️⃣ *Validation:* As soon as your TX appears, the bot verifies the amount and metadata.\n" +
+        "3️⃣ *Action:* Instantly unlocks content, adds to group, or triggers your business logic.\n\n" +
+        "⚡️ *No manual checking. No delays.*",
         {
             parse_mode: "Markdown",
             reply_markup: new InlineKeyboard()
-                .text("🔄 Simulate Verification", "verify_mock").row()
-                .text("⬅️ Back", "start_over")
+                .text("� Test Automation Speed", "verify_mock").row()
+                .text("⬅️ Back to Packages", "start_over")
         }
     );
 });

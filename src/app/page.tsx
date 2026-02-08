@@ -544,6 +544,34 @@ function makeDemoQrMatrix(value: string): QrMatrix {
           </div>
 
           <div className="mt-8 border border-white/15 bg-black/40 backdrop-blur p-6">
+            <div className="text-xs font-mono text-white/60 uppercase">Workflow</div>
+            <div className="mt-2 text-2xl font-black tracking-tight">How it works</div>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="border border-white/10 bg-white/5 p-6 rounded-sm">
+                <div className="text-blue-400 font-mono text-xs">STEP_01</div>
+                <div className="mt-2 font-bold uppercase tracking-wider">Monitor</div>
+                <div className="mt-2 text-sm text-white/60 leading-relaxed">
+                  Real-time blockchain indexing. We watch every block for your specific triggers.
+                </div>
+              </div>
+              <div className="border border-white/10 bg-white/5 p-6 rounded-sm">
+                <div className="text-blue-400 font-mono text-xs">STEP_02</div>
+                <div className="mt-2 font-bold uppercase tracking-wider">Verify</div>
+                <div className="mt-2 text-sm text-white/60 leading-relaxed">
+                  Instant validation of amounts, tokens (USDT/TON), and transaction metadata.
+                </div>
+              </div>
+              <div className="border border-white/10 bg-white/5 p-6 rounded-sm">
+                <div className="text-blue-400 font-mono text-xs">STEP_03</div>
+                <div className="mt-2 font-bold uppercase tracking-wider">Execute</div>
+                <div className="mt-2 text-sm text-white/60 leading-relaxed">
+                  Immediate action: API webhooks, group access, or database updates. No human lag.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 border border-white/15 bg-black/40 backdrop-blur p-6">
             <div className="flex items-start justify-between gap-6 flex-col md:flex-row">
               <div>
                 <div className="text-xs font-mono text-white/60">OFFERS</div>
