@@ -15,16 +15,17 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Zero Point | Farid Kanaani",
-  description: "A digital manifesto of code and art.",
+  description: "TON / USDT automation. Telegram bots that ship. Security, speed, proof.",
   metadataBase: new URL("https://faridkanaani.vercel.app"),
   manifest: "/manifest.webmanifest",
   icons: {
+    shortcut: "/favicon.svg",
     icon: "/favicon.svg",
     apple: "/icon.svg",
   },
   openGraph: {
     title: "Zero Point | Farid Kanaani",
-    description: "A digital manifesto of code and art.",
+    description: "TON / USDT automation. Telegram bots that ship. Security, speed, proof.",
     url: "https://faridkanaani.vercel.app/",
     siteName: "Zero Point",
     images: [
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Zero Point | Farid Kanaani",
-    description: "A digital manifesto of code and art.",
+    description: "TON / USDT automation. Telegram bots that ship. Security, speed, proof.",
     images: ["/Brand-removebg-preview.png"],
   },
 };
@@ -56,11 +57,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white selection:bg-white selection:text-black`}
       >
-        <Script
-          defer
-          data-domain="faridkanaani.vercel.app"
-          src="https://plausible.io/js/script.js"
-        />
+        {process.env.NODE_ENV === "production" && (
+          <Script
+            defer
+            data-domain="faridkanaani.vercel.app"
+            src="https://plausible.io/js/script.js"
+          />
+        )}
         {children}
       </body>
     </html>

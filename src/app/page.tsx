@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { ArrowUpLeft, Zap, Eye, Code2 } from "lucide-react";
+import { ArrowUpLeft, Zap, Eye, Code2, Wallet, Wrench, Shield, Bot, Copy, ExternalLink } from "lucide-react";
 import Image from "next/image";
 
 const terminalMessages = [
@@ -22,6 +22,75 @@ type Fragment = {
   duration: number;
 };
 
+type QrMatrix = boolean[][];
+
+const TON_USDT_TON_ADDRESS = "UQBjfe2bFUbV6vxH-Jxs6SnvyfgFR67q9zQQQ25VuTDrSE4g";
+const TELEGRAM_DEMO_URL = "https://t.me/farid_kanaani";
+
+function createQrSvg(matrix: QrMatrix, size: number) {
+  const cells = matrix.length;
+  const cell = size / cells;
+  let path = "";
+  for (let r = 0; r < cells; r++) {
+    for (let c = 0; c < cells; c++) {
+      if (!matrix[r]?.[c]) continue;
+      const x = c * cell;
+      const y = r * cell;
+      path += `M${x} ${y}h${cell}v${cell}h-${cell}z`;
+    }
+  }
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+      shapeRendering="crispEdges"
+    >
+      <rect width={size} height={size} fill="#000" />
+      <path d={path} fill="#fff" />
+    </svg>
+  );
+}
+
+function makeDemoQrMatrix(value: string): QrMatrix {
+  // Minimal, deterministic QR-like matrix placeholder (not a spec-compliant QR).
+  // Used as a fallback when external QR services are blocked.
+  const size = 29;
+  const m: QrMatrix = Array.from({ length: size }, () => Array.from({ length: size }, () => false));
+  const finder = (top: number, left: number) => {
+    for (let r = 0; r < 7; r++) {
+      for (let c = 0; c < 7; c++) {
+        const rr = top + r;
+        const cc = left + c;
+        const onBorder = r === 0 || r === 6 || c === 0 || c === 6;
+        const onInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+        m[rr]![cc] = onBorder || onInner;
+      }
+    }
+  };
+  finder(0, 0);
+  finder(0, size - 7);
+  finder(size - 7, 0);
+
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const inFinder = (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
+      if (inFinder) continue;
+      const bit = (hash >>> ((r * size + c) % 31)) & 1;
+      if (bit) m[r]![c] = true;
+    }
+  }
+
+  return m;
+}
+
  export default function Home() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [terminalOpen, setTerminalOpen] = useState(false);
@@ -32,6 +101,7 @@ type Fragment = {
   const [breachMode, setBreachMode] = useState<"data" | "void">("data");
   const [crashMode, setCrashMode] = useState(false);
   const [scrollOffset, setScrollOffset] = useState(0);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
 
   useEffect(() => {
     setIsMounted(true);
@@ -111,8 +181,23 @@ type Fragment = {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isMounted]);
 
+  const tonTransferLink = `ton://transfer/${TON_USDT_TON_ADDRESS}`;
+  const shortAddress = `${TON_USDT_TON_ADDRESS.slice(0, 6)}...${TON_USDT_TON_ADDRESS.slice(-6)}`;
+  const qrMatrix = makeDemoQrMatrix(tonTransferLink);
+
+  const copyToClipboard = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopyState("copied");
+      window.setTimeout(() => setCopyState("idle"), 1200);
+    } catch {
+      setCopyState("error");
+      window.setTimeout(() => setCopyState("idle"), 1600);
+    }
+  };
+
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center p-8 overflow-hidden cursor-none">
+    <main className="relative min-h-screen flex flex-col items-center justify-start p-6 sm:p-8 overflow-hidden cursor-none">
       {/* Hidden Terminal Overlay */}
       {terminalOpen && (
         <motion.div 
@@ -169,8 +254,8 @@ type Fragment = {
                 <div className="text-xs font-mono text-white/60">TERMINAL</div>
                 <div className="mt-3 font-mono text-sm text-green-400 whitespace-pre-wrap leading-relaxed">
                   {breachMode === "data"
-                    ? "> whoami\nfarid_kanaani\n\n> ls projects\n- zero_point_manifesto\n- experiments\n\n> hint\nClick the VOID to reveal contact"
-                    : "> ping void\nvoid: alive\n\n> open channel\nchannel: unstable\n\n> contact\nemail: farid.kanaani.official@gmail.com\ngithub: github.com/faridkanaani\nyoutube: youtube.com/@faridkanaani\ninstagram: instagram.com/faridkanaani\ntelegram: t.me/farid_kanaani"}
+                    ? "> whoami\nfarid_kanaani\n\n> services\n- TON/USDT automation\n- Telegram bots\n- Smart contract security\n\n> hint\nOpen CONTACT to start a deal"
+                    : "> ping void\nvoid: alive\n\n> open channel\nchannel: stable\n\n> contact\nemail: farid.kanaani.official@gmail.com\ngithub: github.com/faridkanaani\ntelegram: t.me/farid_kanaani"}
                 </div>
               </div>
 
@@ -245,7 +330,7 @@ type Fragment = {
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: scrollOffset * 0.05 }}
         transition={{ duration: 1, ease: "circOut" }}
-        className="z-10 text-center flex flex-col items-center"
+        className="z-10 text-center flex flex-col items-center w-full max-w-[1100px] pt-10 sm:pt-16"
       >
         {/* User Brand Image - Experimental Glitch Container */}
         <motion.div
@@ -268,34 +353,200 @@ type Fragment = {
           </div>
         </motion.div>
 
-        <h1 className="text-[14vw] font-black leading-[0.8] tracking-tighter uppercase mix-blend-difference select-none hover:skew-x-12 transition-transform duration-75 relative group">
+        <h1 className="text-[16vw] sm:text-[14vw] font-black leading-[0.8] tracking-tighter uppercase mix-blend-difference select-none hover:skew-x-12 transition-transform duration-75 relative group">
           <span className="relative z-10">Farid<br />Kanaani</span>
           <span className="absolute inset-0 z-0 text-red-500 translate-x-1 translate-y-1 opacity-0 group-hover:opacity-50 transition-opacity pointer-events-none">Farid<br />Kanaani</span>
           <span className="absolute inset-0 z-0 text-blue-500 -translate-x-1 -translate-y-1 opacity-0 group-hover:opacity-50 transition-opacity pointer-events-none">Farid<br />Kanaani</span>
         </h1>
         
-        <div className="mt-12 flex flex-col md:flex-row items-center gap-12 justify-center">
+        <div className="mt-10 sm:mt-12 flex flex-col md:flex-row items-center gap-8 sm:gap-12 justify-center">
           <motion.div 
             whileHover={{ scale: 1.2, rotate: -15, filter: "invert(1)" }}
             className="border-[3px] border-white p-8 cursor-pointer group relative overflow-hidden"
+            onClick={() => {
+              setBreachMode("data");
+              setBreachOpen(true);
+            }}
           >
             <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            <p className="text-2xl font-black mb-2 relative z-10 group-hover:text-black">CODE ARTIST</p>
+            <p className="text-2xl font-black mb-2 relative z-10 group-hover:text-black">PROBLEM SOLVER</p>
             <Code2 size={64} className="relative z-10 group-hover:text-black" />
           </motion.div>
 
           <div className="text-left max-w-sm">
             <p className="text-3xl font-extralight leading-none tracking-tight italic opacity-80 hover:opacity-100 transition-opacity">
-              &gt; THIS IS NOT A WEBSITE.<br />
-              &gt; IT IS A DIGITAL ANOMALY.<br />
-              &gt; THE VOID IS WATCHING.
+              &gt; TON / USDT AUTOMATION<br />
+              &gt; TELEGRAM BOTS THAT SHIP<br />
+              &gt; SECURITY, SPEED, PROOF.
             </p>
+          </div>
+        </div>
+
+        {/* Sales Sections */}
+        <div className="mt-14 sm:mt-16 w-full text-left">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="border border-white/15 bg-black/40 backdrop-blur p-6">
+              <div className="flex items-center gap-3">
+                <Bot className="text-white/80" />
+                <div className="text-sm font-mono text-white/60">SERVICE_01</div>
+              </div>
+              <div className="mt-3 text-xl font-black tracking-tight">TON Telegram Bots</div>
+              <div className="mt-2 text-sm text-white/70 leading-relaxed">
+                Monitoring, payments automation, and fast tools built for Telegram crypto groups.
+              </div>
+            </div>
+
+            <div className="border border-white/15 bg-black/40 backdrop-blur p-6">
+              <div className="flex items-center gap-3">
+                <Wallet className="text-white/80" />
+                <div className="text-sm font-mono text-white/60">SERVICE_02</div>
+              </div>
+              <div className="mt-3 text-xl font-black tracking-tight">USDT Automation (TON Network)</div>
+              <div className="mt-2 text-sm text-white/70 leading-relaxed">
+                Receive, verify, and settle automatically. Logs, reporting, and failure-safe alerts.
+              </div>
+            </div>
+
+            <div className="border border-white/15 bg-black/40 backdrop-blur p-6">
+              <div className="flex items-center gap-3">
+                <Shield className="text-white/80" />
+                <div className="text-sm font-mono text-white/60">SERVICE_03</div>
+              </div>
+              <div className="mt-3 text-xl font-black tracking-tight">Wallet & Contract Security</div>
+              <div className="mt-2 text-sm text-white/70 leading-relaxed">
+                Logic review, risk analysis, and strict security hardening. Minimal talk. Maximum proof.
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 border border-white/15 bg-black/40 backdrop-blur p-6">
+            <div className="flex items-start justify-between gap-6 flex-col md:flex-row">
+              <div>
+                <div className="text-xs font-mono text-white/60">PROOF_OF_WORK</div>
+                <div className="mt-2 text-2xl font-black tracking-tight">Proof of work, not claims</div>
+                <div className="mt-2 text-sm text-white/70 leading-relaxed max-w-2xl">
+                  If you came from Telegram: see a working tool first, then talk business. This page is built to prove capability.
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  className="border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold flex items-center gap-2"
+                  onClick={() => {
+                    setBreachMode("void");
+                    setBreachOpen(true);
+                  }}
+                >
+                  [ CONTACT ]
+                  <ExternalLink size={16} />
+                </button>
+                <a
+                  href="https://github.com/faridkanaani"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold flex items-center gap-2"
+                >
+                  [ GITHUB ]
+                  <ExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="border border-white/15 bg-black/40 backdrop-blur p-6">
+              <div className="flex items-center gap-3">
+                <Wrench className="text-white/80" />
+                <div className="text-xs font-mono text-white/60">DEMO</div>
+              </div>
+              <div className="mt-3 text-2xl font-black tracking-tight">Telegram Demo</div>
+              <div className="mt-2 text-sm text-white/70 leading-relaxed">
+                A small, working tool/bot you can test. If you need a private demo, contact me and I will share the latest build.
+              </div>
+
+              <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                {TELEGRAM_DEMO_URL ? (
+                  <a
+                    href={TELEGRAM_DEMO_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold flex items-center gap-2"
+                  >
+                    [ OPEN DEMO ]
+                    <ExternalLink size={16} />
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    className="border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold flex items-center gap-2 opacity-70"
+                    onClick={() => {
+                      setBreachMode("void");
+                      setBreachOpen(true);
+                    }}
+                  >
+                    [ REQUEST DEMO ]
+                    <ExternalLink size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="border border-white/15 bg-black/40 backdrop-blur p-6">
+              <div className="flex items-center gap-3">
+                <Wallet className="text-white/80" />
+                <div className="text-xs font-mono text-white/60">CRYPTO_PAY</div>
+              </div>
+              <div className="mt-3 text-2xl font-black tracking-tight">Direct Payment (TON / USDT on TON)</div>
+              <div className="mt-2 text-sm text-white/70 leading-relaxed">
+                This address works for TON and USDT (TON network). For small tasks: pay directly and send the tx hash on Telegram.
+              </div>
+
+              <div className="mt-4 flex items-start gap-4 flex-col lg:flex-row">
+                <div className="border border-white/15 p-3 bg-black/50 w-full lg:w-auto flex items-center justify-center">
+                  <div className="h-[220px] w-[220px]">
+                    {createQrSvg(qrMatrix, 220)}
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0 w-full">
+                  <div className="text-xs font-mono text-white/60">WALLET_ADDRESS</div>
+                  <div className="mt-2 font-mono text-sm break-all text-white/85">{TON_USDT_TON_ADDRESS}</div>
+
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      className="border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold flex items-center gap-2 min-w-0"
+                      onClick={() => copyToClipboard(TON_USDT_TON_ADDRESS)}
+                    >
+                      [ COPY ADDRESS ]
+                      <Copy size={16} />
+                      <span className="font-mono text-xs opacity-70 truncate">
+                        {copyState === "copied"
+                          ? "COPIED"
+                          : copyState === "error"
+                            ? "ERROR"
+                            : shortAddress}
+                      </span>
+                    </button>
+
+                    <a
+                      href={tonTransferLink}
+                      className="border border-white/30 px-4 py-3 hover:bg-white hover:text-black transition-colors font-bold flex items-center justify-center gap-2"
+                    >
+                      [ OPEN TON WALLET ]
+                      <ExternalLink size={16} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>
 
       {/* Chaotic Background Layers */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] select-none text-[20vw] font-black break-all leading-none z-0 overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none opacity-[0.02] select-none text-[20vw] font-black break-all leading-none z-0 overflow-hidden">
         SYSTEM FAILURE SYSTEM FAILURE SYSTEM FAILURE SYSTEM FAILURE SYSTEM FAILURE
       </div>
 
