@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ArrowUpLeft, Zap, Eye, Code2, Wallet, Wrench, Shield, Bot, Copy, ExternalLink } from "lucide-react";
 import Image from "next/image";
+import qrcode from "qrcode-generator";
 
 const terminalMessages = [
   "INITIALIZING BREACH... \nACCESSING CORE MANIFESTO... \nWARNING: SYSTEM ANOMALY DETECTED. \nFARID KANAANI: STATUS=CODE_ARTIST \nREALITY=GLITCHED \nVOID=WATCHING...",
@@ -22,76 +23,10 @@ type Fragment = {
   duration: number;
 };
 
-type QrMatrix = boolean[][];
-
 const TON_USDT_TON_ADDRESS = "UQBjfe2bFUbV6vxH-Jxs6SnvyfgFR67q9zQQQ25VuTDrSE4g";
 const TELEGRAM_DEMO_URL = "https://t.me/farid_kanaani";
 
-function createQrSvg(matrix: QrMatrix, size: number) {
-  const cells = matrix.length;
-  const cell = size / cells;
-  let path = "";
-  for (let r = 0; r < cells; r++) {
-    for (let c = 0; c < cells; c++) {
-      if (!matrix[r]?.[c]) continue;
-      const x = c * cell;
-      const y = r * cell;
-      path += `M${x} ${y}h${cell}v${cell}h-${cell}z`;
-    }
-  }
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      xmlns="http://www.w3.org/2000/svg"
-      shapeRendering="crispEdges"
-    >
-      <rect width={size} height={size} fill="#000" />
-      <path d={path} fill="#fff" />
-    </svg>
-  );
-}
-
-function makeDemoQrMatrix(value: string): QrMatrix {
-  // Minimal, deterministic QR-like matrix placeholder (not a spec-compliant QR).
-  // Used as a fallback when external QR services are blocked.
-  const size = 29;
-  const m: QrMatrix = Array.from({ length: size }, () => Array.from({ length: size }, () => false));
-  const finder = (top: number, left: number) => {
-    for (let r = 0; r < 7; r++) {
-      for (let c = 0; c < 7; c++) {
-        const rr = top + r;
-        const cc = left + c;
-        const onBorder = r === 0 || r === 6 || c === 0 || c === 6;
-        const onInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
-        m[rr]![cc] = onBorder || onInner;
-      }
-    }
-  };
-  finder(0, 0);
-  finder(0, size - 7);
-  finder(size - 7, 0);
-
-  let hash = 2166136261;
-  for (let i = 0; i < value.length; i++) {
-    hash ^= value.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      const inFinder = (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
-      if (inFinder) continue;
-      const bit = (hash >>> ((r * size + c) % 31)) & 1;
-      if (bit) m[r]![c] = true;
-    }
-  }
-
-  return m;
-}
-
- export default function Home() {
+export default function Home() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [terminalText, setTerminalText] = useState("");
@@ -102,6 +37,7 @@ function makeDemoQrMatrix(value: string): QrMatrix {
   const [crashMode, setCrashMode] = useState(false);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
+  const [qrSvg, setQrSvg] = useState<string>("");
 
   useEffect(() => {
     setIsMounted(true);
@@ -183,7 +119,20 @@ function makeDemoQrMatrix(value: string): QrMatrix {
 
   const tonTransferLink = `ton://transfer/${TON_USDT_TON_ADDRESS}`;
   const shortAddress = `${TON_USDT_TON_ADDRESS.slice(0, 6)}...${TON_USDT_TON_ADDRESS.slice(-6)}`;
-  const qrMatrix = makeDemoQrMatrix(tonTransferLink);
+
+  useEffect(() => {
+    try {
+      const typeNumber = 0; // auto
+      const errorCorrectionLevel = 'M';
+      const qr = qrcode(typeNumber, errorCorrectionLevel);
+      qr.addData(tonTransferLink);
+      qr.make();
+      const svgTag = qr.createSvgTag(5, 0);
+      setQrSvg(svgTag);
+    } catch (e) {
+      console.error("QR generation failed", e);
+    }
+  }, [tonTransferLink]);
 
   const copyToClipboard = async (value: string) => {
     try {
@@ -504,9 +453,10 @@ function makeDemoQrMatrix(value: string): QrMatrix {
 
               <div className="mt-4 flex items-start gap-4 flex-col lg:flex-row">
                 <div className="border border-white/15 p-3 bg-black/50 w-full lg:w-auto flex items-center justify-center">
-                  <div className="h-[220px] w-[220px]">
-                    {createQrSvg(qrMatrix, 220)}
-                  </div>
+                  <div 
+                    className="h-[220px] w-[220px] flex items-center justify-center bg-black"
+                    dangerouslySetInnerHTML={{ __html: qrSvg.replace(/width="[^"]*"/, 'width="220"').replace(/height="[^"]*"/, 'height="220"') }}
+                  />
                 </div>
 
                 <div className="flex-1 min-w-0 w-full">
