@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -62,6 +63,7 @@ export default function RootLayout({
           src="https://plausible.io/js/script.js"
         />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
